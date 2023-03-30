@@ -1,0 +1,1 @@
+This project is API based. An ecommerce api based project made with django.
