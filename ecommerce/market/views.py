@@ -3,11 +3,25 @@ from rest_framework.decorators import api_view, renderer_classes
 from rest_framework.parsers import JSONParser
 from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer 
 from rest_framework.response import Response
+from django.contrib.auth.models import User
+from rest_framework.authtoken.models import Token
 from .models import *
 from .serializers import *
 from rest_framework import generics
 # Create your views here.
 
+@api_view(['POST'])
+@renderer_classes([BrowsableAPIRenderer,JSONRenderer])
+def register(request):
+    if request.method == 'POST':
+        data = JSONParser().parse(request)
+        serializer = UserSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            user = User.objects.get(username= serializer.data['username'])
+            token , _ = Token.objects.get_or_create(user=user)
+            return Response({'status':200,'payload': serializer.data, 'token':str(token)})
+        return Response(serializer.errors, status=401)
 
 @api_view(['GET'])
 @renderer_classes([BrowsableAPIRenderer,JSONRenderer])

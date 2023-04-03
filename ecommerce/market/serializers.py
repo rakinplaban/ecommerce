@@ -6,6 +6,11 @@ from .models import (Client,User,UserProfile,Stores,Product_category,Product_thu
                      Product_variants,Product_varient_value,Products,Category,Wish_list,Attributes)
 # Create your serializers here.
 
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['username', 'password']
+        
 
 class ClientSerializer(serializers.ModelSerializer): 
     class Meta:
