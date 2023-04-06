@@ -9,7 +9,13 @@ from .models import (Client,User,UserProfile,Stores,Product_category,Product_thu
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['username', 'password']
+        fields = ['username','email', 'password']
+
+    def create(self, validated_data):
+        user = User.objects.create_user(username = validated_data['username'],email=validated_data['email'])
+        user.set_password(validated_data['password'])
+        user.save()
+        return user
         
 
 class ClientSerializer(serializers.ModelSerializer): 

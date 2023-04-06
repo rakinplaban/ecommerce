@@ -1,7 +1,26 @@
 from django.contrib import admin
+from django.contrib.auth.models import User
 from .models import (Client,UserProfile,Stores,Product_category,Product_thumbnail,Products,
                      Product_variants,Product_varient_value,Products,Category,Wish_list,Attributes)
 # Register your models here.
+
+
+class UserProfileInline(admin.StackedInline):
+    model = UserProfile
+    can_delete = False
+    verbose_name_plural = 'User Profile'
+    fk_name = "user"
+
+
+
+# Define a new User admin
+class UserAdmin(User):
+    inlines = (UserProfileInline,)
+
+
+
+
+
 class Client_display(admin.ModelAdmin):
     list_display = ("id","name","domain","address")
 
@@ -46,3 +65,5 @@ admin.site.register(Product_category,Product_category_display)
 admin.site.register(Product_thumbnail,Product_thumbnail_display)
 admin.site.register(Product_variants,Product_varient_display)
 # admin.site.register(Product_varient_value,Product_varient_value_display)
+
+
