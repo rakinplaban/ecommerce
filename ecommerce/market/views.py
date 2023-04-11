@@ -29,6 +29,14 @@ def login_view(request):
         return Response({'status':200, 'token':token.key})
     return Response({'status':401, 'message':'Invalid credentials'})
 
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def logout_view(request):
+    request.user.auth_token.delete()
+    return Response({"message": "You have been logged out."})
+
+
 @api_view(['POST'])
 @renderer_classes([BrowsableAPIRenderer,JSONRenderer])
 def register(request):
@@ -75,6 +83,8 @@ def allproducts(request):
    
 @api_view(['GET'])
 @renderer_classes([BrowsableAPIRenderer,JSONRenderer])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def allclients(request):
     if request.method == 'GET':
         clients = Client.objects.all()
