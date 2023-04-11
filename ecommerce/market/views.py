@@ -8,6 +8,7 @@ from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
+from rest_framework import status
 from .models import *
 from .forms import *
 from .serializers import *
@@ -33,8 +34,15 @@ def login_view(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def logout_view(request):
-    request.user.auth_token.delete()
-    return Response({"message": "You have been logged out."})
+    try:
+        token = Token.objects.get(user=request.user)
+    except Token.DoesNotExist:
+        return Response({'error': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
+
+    # Delete the token
+    token.delete()
+    
+    return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 @api_view(['POST'])
