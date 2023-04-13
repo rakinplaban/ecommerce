@@ -75,18 +75,6 @@ def allproducts(request):
         products = Products.objects.all()
         serializer = ProductSerializer(products, many=True)
         return Response(serializer.data)
-    
-# @api_view(['POST'])
-# @authentication_classes([TokenAuthentication])
-# @permission_classes([IsAuthenticated])
-# def addproduct(request):
-#     if request.method == 'POST':
-#         data = JSONParser().parse(request)
-#         serializer = ProductSerializer(data=data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data, status=201)
-#         return Response(serializer.errors, status=400)
 
    
 @api_view(['GET'])
@@ -98,19 +86,6 @@ def allclients(request):
         clients = Client.objects.all()
         serializer = ClientSerializer(clients, many=True)
         return Response(serializer.data)
-   
-    
-# @api_view(['POST'])
-# @authentication_classes([TokenAuthentication])
-# @permission_classes([IsAuthenticated])
-# def addclient(request):
-#     if request.method == 'POST':
-#         data = JSONParser().parse(request)
-#         serializer = ClientSerializer(data=data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data, status=201)
-#         return Response(serializer.errors, status=400)
 
 
 @api_view(['GET'])
@@ -120,3 +95,28 @@ def view_category(request):
         clients = Category.objects.all()
         serializer = CategoriesSerializer(clients, many=True)
         return Response(serializer.data)
+
+@api_view(['GET'])
+@renderer_classes([BrowsableAPIRenderer,JSONRenderer])
+def product_pricing(request,id):
+    try:
+        if request.method == 'GET':
+            clients = Product_variants.objects.get(product_id=id)
+            serializer = ProductVariantSerializer(clients, many=True)
+            return Response(serializer.data)
+    except:
+        return Response({'status':404,'message':'Product not found'})
+    
+
+@api_view(['GET'])
+@renderer_classes([BrowsableAPIRenderer,JSONRenderer])
+def product_thumbnail(request,id):
+    if request.method == 'GET':
+        try:
+            product_thumbnails = Product_thumbnail.objects.get(product_variant_id=id)
+            serializer = ProductThumbnailSerializer(product_thumbnails, many=True)
+            return Response(serializer.data)
+        except:
+            return Response({'status':404,'message':'Product not found'})
+        
+    
