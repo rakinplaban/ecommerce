@@ -120,3 +120,13 @@ def product_thumbnail(request,id):
             return Response({'status':404,'message':'Product not found'})
         
     
+@api_view(['GET'])
+@renderer_classes([BrowsableAPIRenderer,JSONRenderer])
+def store_info(request,id):
+    if request.method == 'GET':
+        try:
+            product_thumbnails = Stores.objects.get(id=id)
+            serializer = StoreSerializer(product_thumbnails, many=True)
+            return Response(serializer.data)
+        except:
+            return Response({'status':404,'message':'No store found!'})
