@@ -61,7 +61,7 @@ class WishListSerializer(serializers.ModelSerializer):
     user = serializers.RelatedField(source='user_id',read_only=True)
     class Meta:
         model = Wish_list
-        fields = ['created_date','init_price']
+        fields = ['created_date','init_price','product','user']
   
 
 class AttributesSerializer(serializers.ModelSerializer):
