@@ -146,13 +146,3 @@ def add_wishlist(request,id):
             return Response({'status':404,'message':'No product found!'})
         
 
-@api_view(['GET'])
-@renderer_classes([BrowsableAPIRenderer,JSONRenderer])
-def  view_wishlist(request,id):
-    try:
-        if request.method == 'GET':
-            wishlist_item = Wish_list.objects.get(product_id=id)
-            serializer = WishListSerializer(wishlist_item, many=True)
-            return Response(serializer.data)
-    except:
-        return Response({'status':404,'message':'Something went wrong!'})
