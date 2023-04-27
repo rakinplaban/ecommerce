@@ -70,7 +70,7 @@ def  allusers(request):
 
 @api_view(['GET'])
 @renderer_classes([BrowsableAPIRenderer,JSONRenderer])
-def allproducts(request):
+def all_products(request):
     if request.method == 'GET':
         products = Products.objects.all()
         serializer = ProductSerializer(products, many=True)
@@ -81,7 +81,7 @@ def allproducts(request):
 @renderer_classes([BrowsableAPIRenderer,JSONRenderer])
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
-def allclients(request):
+def all_clients(request):
     if request.method == 'GET':
         clients = Client.objects.all()
         serializer = ClientSerializer(clients, many=True)
