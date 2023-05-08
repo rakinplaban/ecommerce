@@ -2,7 +2,7 @@ from rest_framework import serializers
 # from django.db import models
 # from django.contrib.auth.models import AbstractUser
 # from . import models
-from .models import (Client,User,UserProfile,Stores,Product_category,Product_thumbnail,Value,
+from .models import (Client,User,UserProfile,Stores,Product_category,Product_thumbnail,Value, Cart, Orders,
                      Product_variants,Product_varient_value,Products,Category,Wish_list,Attributes)
 # Create your serializers here.
 
@@ -107,3 +107,19 @@ class ProductVarientValueSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product_varient_value
         fields = ['product_variant_id','value_id']
+
+
+class CartSerializer(serializers.ModelSerializer):
+    product = serializers.RelatedField(source='product_variant_id',read_only=True)
+    user = serializers.RelatedField(source='user_id',read_only=True)
+    class Meta:
+        model = Cart
+        fields = ['product','user','amount','initial_price','created_date','updated_date']
+
+
+class OrderSerializer(serializers.ModelSerializer):
+    user = serializers.RelatedField(source='user_id',read_only=True)
+    product = serializers.RelatedField(source='product_id',read_only=True)
+    class Meta:
+        model = Orders
+        fields = ['user','product','active_status','created_date','updated_date']

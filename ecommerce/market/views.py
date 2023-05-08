@@ -145,4 +145,32 @@ def add_wishlist(request,id):
         except:
             return Response({'status':404,'message':'No product found!'})
         
+    
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+@renderer_classes([BrowsableAPIRenderer,JSONRenderer])
+@authentication_classes([TokenAuthentication])
+def add_to_cart(request,id):
+    if request.method == 'POST':
+        try:
+            cart_item = Cart.objects.get(product_variant_id=id)
+            serializer = CartSerializer(cart_item, many=True)
+            return Response(serializer.data)
+        except:
+            return Response({'status':404,'message':'No product found!'})
+        
+
+@api_view(['GET'])
+@renderer_classes([BrowsableAPIRenderer,JSONRenderer])
+@permission_classes([IsAuthenticated])
+@authentication_classes([TokenAuthentication])
+def view_cart(request):
+    try:
+        if request.method == 'GET':
+            cart_items = Cart.objects.get(user_id=request.user.id)
+            serializer = CartSerializer(cart_items, many=True)
+            return Response(serializer.data)
+    except:
+        return Response({'status':404,'message':'No user found!'})
+    
 

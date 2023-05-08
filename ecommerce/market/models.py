@@ -20,7 +20,7 @@ class UserProfile(models.Model):
     remember_token = models.CharField(max_length=100,null=True,blank=True)
     profile_image_url = models.URLField(null=True,blank=True)
     user = models.OneToOneField(User,on_delete=models.CASCADE)
-    client_id = models.ForeignKey(Client,on_delete=models.CASCADE)
+    client_id = models.ForeignKey(Client,on_delete=models.CASCADE,null=True,blank=True)
   
 
 
@@ -42,12 +42,20 @@ class Products(models.Model):
     store_id = models.ForeignKey(Stores,on_delete=models.CASCADE)
     status = models.BooleanField(default=True)
     bookmarked = models.ManyToManyField(UserProfile,through='Wish_list',related_name="bookmarked",blank=True,default=None)
+    ordered = models.ManyToManyField(UserProfile,through='Orders',related_name="ordered",blank=True,default=None)
 
 class Wish_list(models.Model):
     created_date = models.DateField(auto_now_add=True)
     init_price =  models.FloatField()
     product_id = models.ForeignKey(Products,on_delete=models.CASCADE)
     user_id = models.ForeignKey(UserProfile,on_delete=models.CASCADE)
+
+class Orders(models.Model):
+    created_date = models.DateField(auto_now_add=True)
+    updated_date = models.DateField(auto_now=True)
+    active_status = models.BooleanField(default=True)
+    user_id = models.ForeignKey(UserProfile,on_delete=models.CASCADE)
+    product_id = models.ForeignKey(Products,on_delete=models.CASCADE)
 
 
 class Category(models.Model):
@@ -70,6 +78,7 @@ class Product_variants(models.Model):
     stock = models.IntegerField()
     status = models.BooleanField(default=True)
     product_id = models.ForeignKey(Products,on_delete=models.CASCADE)
+    cart_added = models.ManyToManyField(UserProfile,through='Cart',related_name="cart_added",blank=True,default=None)
 
 
 
@@ -92,3 +101,11 @@ class Value(models.Model):
 class Product_varient_value:
     product_variant_id = models.ForeignKey(Product_variants,on_delete=models.CASCADE)
     value_id = models.ForeignKey(Value,on_delete=models.CASCADE)
+
+class Cart(models.Model):
+    user_id = models.ForeignKey(UserProfile,on_delete=models.CASCADE)
+    product_variant_id = models.ForeignKey(Product_variants,on_delete=models.CASCADE)
+    amount = models.IntegerField()
+    initial_price = models.FloatField()
+    created_date = models.DateField(auto_now_add=True)
+    updated_date = models.DateField(auto_now=True)
