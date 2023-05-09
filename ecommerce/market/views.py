@@ -70,7 +70,7 @@ def  allusers(request):
 
 @api_view(['GET'])
 @renderer_classes([BrowsableAPIRenderer,JSONRenderer])
-def allproducts(request):
+def all_products(request):
     if request.method == 'GET':
         products = Products.objects.all()
         serializer = ProductSerializer(products, many=True)
@@ -81,7 +81,7 @@ def allproducts(request):
 @renderer_classes([BrowsableAPIRenderer,JSONRenderer])
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
-def allclients(request):
+def all_clients(request):
     if request.method == 'GET':
         clients = Client.objects.all()
         serializer = ClientSerializer(clients, many=True)
@@ -145,4 +145,55 @@ def add_wishlist(request,id):
         except:
             return Response({'status':404,'message':'No product found!'})
         
+    
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+@renderer_classes([BrowsableAPIRenderer,JSONRenderer])
+@authentication_classes([TokenAuthentication])
+def add_to_cart(request,id):
+    if request.method == 'POST':
+        try:
+            product_variant = Product_variants.objects.get(id=id)
+            initial_price = product_variant.price
+            cart_item = Cart.objects.create(
+                 user_id=request.user.userprofile,
+                product_variant_id=product_variant,
+                amount=request.data['amount'],
+                initial_price=initial_price
+            )
+            serializer = CartSerializer(cart_item, many=True)
+            return Response(serializer.data,serializer.data, status=status.HTTP_201_CREATED)
+        except Product_variants.DoesNotExist:
+            return Response({'status': 404, 'message': 'No product found!'})
+        
 
+@api_view(['GET'])
+@renderer_classes([BrowsableAPIRenderer,JSONRenderer])
+@permission_classes([IsAuthenticated])
+@authentication_classes([TokenAuthentication])
+def view_cart(request):
+    try:
+        if request.method == 'GET':
+            cart_items = Cart.objects.filter(user_id=request.user.id)
+            serializer = CartSerializer(cart_items, many=True)
+            return Response(serializer.data)
+    except:
+        return Response({'status':404,'message':'No user found!'})
+    
+
+@api_view(['PUT'])
+@renderer_classes([BrowsableAPIRenderer,JSONRenderer])
+@permission_classes([IsAuthenticated])
+@authentication_classes([TokenAuthentication])
+
+def update_cart(request,id):
+    try:
+        # if request.method == 'POST':
+        cart_item = Cart.objects.get(id=id)
+        cart_item.amount = request.data['amount']
+        cart_item.save()
+        serializer = CartSerializer(cart_item, data=request.data, partial=True)
+        return Response(serializer.data)
+        
+    except:
+        return Response({'status':404,'message':'No item found!'})
