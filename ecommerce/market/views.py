@@ -197,3 +197,16 @@ def update_cart(request,id):
         
     except:
         return Response({'status':404,'message':'No item found!'})
+    
+
+@api_view(['DELETE'])
+@renderer_classes([BrowsableAPIRenderer, JSONRenderer])
+@permission_classes([IsAuthenticated])
+@authentication_classes([TokenAuthentication])
+def delete_cart_item(request, id):
+    try:
+        cart_item = Cart.objects.get(id=id)
+        cart_item.delete()
+        return Response({'status': 200, 'message': 'Cart item deleted successfully.'})
+    except Cart.DoesNotExist:
+        return Response({'status': 404, 'message': 'No cart item found with the provided ID.'})
