@@ -14,6 +14,7 @@ from .forms import *
 from .serializers import *
 from django.contrib.auth import authenticate, login
 from rest_framework.permissions import AllowAny
+from datetime import datetime
 # Create your views here.
 
 @api_view(['POST'])
@@ -139,11 +140,43 @@ def store_info(request,id):
 def add_wishlist(request,id):
     if request.method == 'POST':
         try:
-            wishlist_item = Wish_list.objects.get(product_id=id)
+            product_item = Products.objects.get(id=id)
+            wishlist_item = Wish_list.objects.create(
+                product_id=product_item,
+                user_id=request.user.userprofile,
+                created_date = datetime.now(),
+            )
             serializer = WishListSerializer(wishlist_item, many=True)
-            return Response(serializer.data)
+            return Response(serializer.data,status=status.HTTP_201_CREATED)
         except:
             return Response({'status':404,'message':'No product found!'})
+        
+@api_view(['GET'])
+@renderer_classes([BrowsableAPIRenderer,JSONRenderer])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def view_wishlist(request):
+    if request.method == 'GET':
+        try:
+            wishlist_items = Wish_list.objects.filter(user_id=request.user.id)
+            serializer = WishListSerializer(wishlist_items, many=True)
+            return Response(serializer.data,status=status.HTTP_200_OK)
+        except:
+            return Response({'status':404,'message':'No user found!'})
+        
+    
+@api_view(['DELETE'])
+@renderer_classes([BrowsableAPIRenderer,JSONRenderer])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def remove_from_wishlist(request,id):
+    if request.method == 'DELETE':
+        try:
+            wishlist_item = Wish_list.objects.get(id=id)
+            wishlist_item.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except:
+            return Response({'status':404,'message':'No user found!'})
         
     
 @api_view(['POST'])
@@ -176,7 +209,7 @@ def view_cart(request):
         if request.method == 'GET':
             cart_items = Cart.objects.filter(user_id=request.user.id)
             serializer = CartSerializer(cart_items, many=True)
-            return Response(serializer.data)
+            return Response(serializer.data,status=status.HTTP_200_OK)
     except:
         return Response({'status':404,'message':'No user found!'})
     
@@ -193,7 +226,7 @@ def update_cart(request,id):
         cart_item.amount = request.data['amount']
         cart_item.save()
         serializer = CartSerializer(cart_item, data=request.data, partial=True)
-        return Response(serializer.data)
+        return Response(serializer.data,status=status.HTTP_200_OK)
         
     except:
         return Response({'status':404,'message':'No item found!'})
@@ -204,9 +237,56 @@ def update_cart(request,id):
 @permission_classes([IsAuthenticated])
 @authentication_classes([TokenAuthentication])
 def delete_cart_item(request, id):
-    try:
-        cart_item = Cart.objects.get(id=id)
-        cart_item.delete()
-        return Response({'status': 200, 'message': 'Cart item deleted successfully.'})
-    except Cart.DoesNotExist:
-        return Response({'status': 404, 'message': 'No cart item found with the provided ID.'})
+    if request.method == 'DELETE':
+        try:
+            cart_item = Cart.objects.get(id=id)
+            cart_item.delete()
+            return Response({'status': 200, 'message': 'Cart item deleted successfully.'})
+        except Cart.DoesNotExist:
+            return Response({'status': 404, 'message': 'No cart item found with the provided ID.'})
+    
+
+@api_view(['POST'])
+@renderer_classes([BrowsableAPIRenderer,JSONRenderer])
+@permission_classes([IsAuthenticated])
+@authentication_classes([TokenAuthentication])
+def create_order(request,id):
+    if request.method == 'POST':
+        try: 
+            product = Products.objects.get(id=id)
+            order_item = Orders.objects.create(
+                user_id=request.user.userprofile,
+                product_id=product,
+            )
+            serializer = OrderSerializer(order_item, many=True)
+            return Response(serializer.data,status=status.HTTP_201_CREATED)
+        except:
+            return Response({'status':404,'message':'Product not found!'})  
+    
+
+@api_view(['GET'])
+@renderer_classes([BrowsableAPIRenderer,JSONRenderer])
+@permission_classes([IsAuthenticated])
+@authentication_classes([TokenAuthentication])
+def track_orders(request):
+    if request.method == 'GET':
+        try:
+            order_item = Orders.objects.filter(user_id=request.user.id)
+            serializer = OrderSerializer(order_item, many=True)
+            return Response(serializer.data,status=status.HTTP_200_OK)
+        except:
+            return Response({'status':404,'message':'No user found!'})
+    
+
+@api_view(['DELETE'])
+@renderer_classes([BrowsableAPIRenderer,JSONRenderer])
+@permission_classes([IsAuthenticated])
+@authentication_classes([TokenAuthentication])
+def cancel_order(request,id):
+    if request.method == 'DELETE':
+        try:
+            order_item = Orders.objects.get(id=id)
+            order_item.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except:
+            return Response({'status':404,'message':'No user found!'})
