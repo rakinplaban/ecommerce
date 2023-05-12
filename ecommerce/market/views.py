@@ -289,4 +289,4 @@ def cancel_order(request,id):
             order_item.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         except:
-            return Response({'status':404,'message':'No user found!'})
+            return Response(status=status.HTTP_410_GONE)
