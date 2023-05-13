@@ -47,8 +47,8 @@ class Products(models.Model):
 class Wish_list(models.Model):
     created_date = models.DateField(auto_now_add=True)
     init_price =  models.FloatField()
-    product_id = models.ForeignKey(Products,on_delete=models.CASCADE)
-    user_id = models.ForeignKey(UserProfile,on_delete=models.CASCADE)
+    product_id = models.ForeignKey(Products,on_delete=models.CASCADE,null=True,blank=True)
+    user_id = models.ForeignKey(UserProfile,on_delete=models.CASCADE,null=True,blank=True)
 
 class Orders(models.Model):
     created_date = models.DateField(auto_now_add=True)
@@ -109,3 +109,42 @@ class Cart(models.Model):
     initial_price = models.FloatField()
     created_date = models.DateField(auto_now_add=True)
     updated_date = models.DateField(auto_now=True)
+
+
+class Payment_Method(models.Model):
+    option = models.CharField(max_length=45)
+    billing_address = models.CharField(max_length=45)
+    security_code = models.CharField(max_length=45)
+    country = models.CharField(max_length=45)
+    minimum_amount = models.DecimalField(max_digits=10,decimal_places=2)
+    maximum_amount = models.DecimalField(max_digits=10,decimal_places=2)
+    method_status = models.BooleanField(default=True)
+    currency = models.CharField(max_length=45)
+    payment = models.ManyToManyField(Orders,through='Payment_Stauts',related_name="payment")
+
+
+class Payment_Stauts(models.Model):
+    progress = models.CharField(max_length=45)
+    created_date = models.DateField(auto_now_add=True)
+    updated_date = models.DateField(auto_now=True)
+    payment_id = models.ForeignKey(Payment_Method,on_delete=models.CASCADE)
+    order_id = models.ForeignKey(Orders,on_delete=models.CASCADE)
+   
+    
+class Shiping_Method(models.Model):
+    service_type = models.CharField(max_length=45)
+    deadline = models.CharField(max_length=45)
+    transportation_cost = models.FloatField(null=True,blank=True)
+    location = models.CharField(max_length=45)
+    availability_status = models.BooleanField(default=True)
+    created_date = models.DateField(auto_now_add=True)
+    updated_date = models.DateField(auto_now=True)
+    shiping = models.ManyToManyField(Orders,through='Shiping_Status',related_name="shiping")
+
+
+class Shiping_Status(models.Model):
+    progress = models.CharField(max_length=45,null=True,blank=True)
+    created_date = models.DateField(auto_now_add=True)
+    updated_date = models.DateField(auto_now=True)
+    shiping_id = models.ForeignKey(Shiping_Method,on_delete=models.CASCADE)
+    order_id = models.ForeignKey(Orders,on_delete=models.CASCADE)

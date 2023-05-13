@@ -3,7 +3,8 @@ from rest_framework import serializers
 # from django.contrib.auth.models import AbstractUser
 # from . import models
 from .models import (Client,User,UserProfile,Stores,Product_category,Product_thumbnail,Value, Cart, Orders,
-                     Product_variants,Product_varient_value,Products,Category,Wish_list,Attributes)
+                     Product_variants,Product_varient_value,Products,Category,Wish_list,Attributes,
+                     Payment_Stauts,Payment_Method,Shiping_Method,Shiping_Status)
 # Create your serializers here.
 
 class UserSerializer(serializers.ModelSerializer):
@@ -123,3 +124,31 @@ class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Orders
         fields = ['user','product','active_status','created_date','updated_date']
+
+
+class PaymentMethodSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Payment_Method
+        fields = ['option','billing_address','security_code','country','minimum_amount', 'maximum_amount','method_status','currency']
+
+
+class PaymentStatusSerializer(serializers.ModelSerializer):
+    payment = serializers.RelatedField(source='payment_id',read_only=True)
+    order = serializers.RelatedField(source='order_id',read_only=True)
+    class Meta:
+        model = Payment_Stauts
+        fields = ['progress','created_date','updated_date']
+
+
+class ShipingMethodSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Shiping_Method
+        fields = ['service_type','deadline','transportation_cost','location','availability_status','created_date','updated_date']
+
+
+class ShipingStatusSerializer(serializers.ModelSerializer):
+    shiping = serializers.RelatedField(source='shiping_id',read_only=True)
+    order = serializers.RelatedField(source='order_id',read_only=True)
+    class Meta:
+        model = Shiping_Status
+        fields = ['progress','created_date','updated_date']
