@@ -352,3 +352,58 @@ def update_payment_method(request,id):
             return Response(status=status.HTTP_404_NOT_FOUND)
         
 
+@api_view(['POST'])
+@renderer_classes([BrowsableAPIRenderer,JSONRenderer])
+@permission_classes([IsAuthenticated])
+@authentication_classes([TokenAuthentication])
+def payment_status_activate(request,id,order_pk):
+    if request.method == 'POST':
+        try:
+            payment = Payment_Method.objects.get(id=id)
+            order = Orders.objects.get(id=order_pk)
+            payment_initiate = Payment_Stauts.objects.create(
+                progress = request.POST['progress'],
+                charges = request.POST['charges'],
+                created_date = request.POST['created_date'],
+                updated_date = request.POST['updated_date'],
+                payment_id = payment,
+                order_id = order
+            )
+
+            serializers = PaymentStatusSerializer(payment_initiate, many=True)
+            return Response(serializers.data,status=status.HTTP_201_CREATED)
+
+        except:
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+    
+@api_view(['GET'])
+@renderer_classes([BrowsableAPIRenderer,JSONRenderer])
+@permission_classes([IsAuthenticated])
+@authentication_classes([TokenAuthentication])
+def view_payment_status(request,id):
+    try:
+        payment_status = Payment_Stauts.objects.get(id=id)
+        serializer = PaymentStatusSerializer(payment_status, many=True)
+        return Response(serializer.data,status=status.HTTP_200_OK)
+    except:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['PUT'])
+@renderer_classes([BrowsableAPIRenderer,JSONRenderer])
+@permission_classes([IsAuthenticated])
+@authentication_classes([TokenAuthentication])
+def update_payment_status(request,id):
+    if request.method == 'PUT':
+        try:
+            payment_status = Payment_Stauts.objects.get(id=id)
+            payment_status.progress = request.data['progress'],
+            payment_status.charges = request.data['charges'],
+            payment_status.created_date = request.data['created_date'],
+            payment_status.updated_date = request.data['updated_date'],
+            payment_status.save()
+            serializer = PaymentStatusSerializer(payment_status)
+            return Response(serializer.data,status=status.HTTP_202_ACCEPTED)
+        except:
+            return Response(status=status.HTTP_404_NOT_FOUND)
