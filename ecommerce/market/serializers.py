@@ -127,6 +127,7 @@ class OrderSerializer(serializers.ModelSerializer):
 
 
 class PaymentMethodSerializer(serializers.ModelSerializer):
+    user_acc = serializers.RelatedField(source='user_acc',read_only=True)
     class Meta:
         model = Payment_Method
         fields = ['option','billing_address','security_code','country','minimum_amount', 'maximum_amount','method_status','currency']

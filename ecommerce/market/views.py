@@ -290,3 +290,65 @@ def cancel_order(request,id):
             return Response(status=status.HTTP_204_NO_CONTENT)
         except:
             return Response(status=status.HTTP_410_GONE)
+
+
+
+@api_view(['POST'])
+@renderer_classes([BrowsableAPIRenderer,JSONRenderer])
+@permission_classes([IsAuthenticated])
+@authentication_classes([TokenAuthentication])
+def add_payment_method(request):
+    if request.method == 'POST':
+        try:
+            payment_method = Payment_Method.objects.create(
+                user_acc=request.user.userprofile,
+                billing_address=request.data['billing_address'],
+                security_code=request.data['security_code'],
+                country=request.data['country'],
+                minimum_amount=request.data['minimum_amount'],
+                maximum_amount=request.data['maximum_amount'],
+                method_status=request.data['method_status'],
+                currency=request.data['currency'],
+            )
+            serializer = PaymentMethodSerializer(payment_method, many=True)
+            return Response(serializer.data,status=status.HTTP_201_CREATED)
+        except:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        
+
+@api_view(['GET'])
+@renderer_classes([BrowsableAPIRenderer,JSONRenderer])
+@permission_classes([IsAuthenticated])
+@authentication_classes([TokenAuthentication])
+def selected_payment(request):
+    try:
+        payment_method = Payment_Method.objects.get(user_acc=request.user.userprofile)
+        serializer = PaymentMethodSerializer(payment_method)
+        return Response(serializer.data,status=status.HTTP_200_OK)
+    except:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    
+
+
+@api_view(['PUT'])
+@renderer_classes([BrowsableAPIRenderer,JSONRenderer])
+@permission_classes([IsAuthenticated])
+@authentication_classes([TokenAuthentication])
+def update_payment_method(request,id):
+    if request.method == 'PUT':
+        try:
+            payment_method = Payment_Method.objects.get(id=id)
+            payment_method.billing_address=request.data['billing_address'],
+            payment_method.security_code=request.data['security_code'],
+            payment_method.country=request.data['country'],
+            payment_method.minimum_amount=request.data['minimum_amount'],
+            payment_method.maximum_amount=request.data['maximum_amount'],
+            payment_method.method_status=request.data['method_status'],
+            payment_method.currency=request.data['currency'],
+            payment_method.save()
+            serializer = PaymentMethodSerializer(payment_method)
+            return Response(serializer.data,status=status.HTTP_202_ACCEPTED)
+        except:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        
+

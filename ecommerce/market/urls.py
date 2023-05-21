@@ -22,4 +22,7 @@ urlpatterns = [
     path('remove_cart/<int:id>',views.delete_cart_item),
     path('create_order',views.create_order),
     path('track_order',views.track_orders),
+    path('add_payment_method',views.add_payment_method),
+    path('view_payment_method',views.selected_payment),
+    path('update_payment_method/<int:id>',views.update_payment_method),
 ]
